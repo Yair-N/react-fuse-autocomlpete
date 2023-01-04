@@ -1,24 +1,31 @@
-import logo from './logo.svg';
 import './App.css';
+import { useEffect, useState } from 'react';
+import Autocomplete from './components/Autocomplete';
+import { countries } from './api/GetCoutries';
 
 function App() {
+  const [country_list, setCountry_list] = useState({})
+  const result = async () => {
+    let response =await countries()
+    sessionStorage.setItem('countries', JSON.stringify(response.data))
+    setCountry_list(response.data)
+  }
+
+  useEffect(() => {
+    let countries_state = sessionStorage.getItem('countries')
+    console.log('countries',countries_state)
+
+    if ( countries_state !== 'undefined' && countries_state !== null) {
+      setCountry_list(JSON.parse(countries_state))
+    }else{
+    console.log('no countries stored')
+      result()}
+  }, [])
+
+ 
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Autocomplete />
   );
 }
 
