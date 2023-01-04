@@ -2,8 +2,7 @@ import React, { useState } from 'react'
 import styled from "styled-components";
 import { useFuse } from './useFuse';
 
-
-const Autocomplete = () => {
+const Autocomplete = ({ items , options }) => {
     const [searchTerm, setText] = useState("");
     const [searchHistory, setHistory] = useState([]);
     const handleSubmit = (ev) => {
@@ -13,7 +12,9 @@ const Autocomplete = () => {
         setText("");
     };
 
-    const suggestions = useFuse(searchTerm, searchHistory);
+    const fuse_options = options ? options : default_fuse_oprions
+    const suggestions = useFuse(searchTerm, items, options = fuse_options);
+
     const exactMatch = (query, text) => {
         const regex = new RegExp(`^${query}`);
         return regex.test(text);
@@ -26,43 +27,55 @@ const Autocomplete = () => {
                     type="search"
                     value={searchTerm}
                     onChange={(ev) => setText(ev.target.value)}
-                    placeholder="eg. I do autocomplete for living"
+                    placeholder="search a country by name, iso code or capital"
                 />
                 <MatchShadow>
                     {suggestions.length > 0 &&
-                    exactMatch(searchTerm, suggestions[0]) &&
-                    suggestions[0]}
+                        exactMatch(searchTerm, suggestions[0]) &&
+                        suggestions[0]}
                 </MatchShadow>
             </form>
             {/* suggestions list */}
-            <SuggestionsContainer>
+            {/* <SuggestionsContainer>
                 <SuggestionsDropdown
-                    show={searchTerm.length > 0 && searchHistory.length > 0}
+                    show={searchTerm.length > 0 && suggestions.length > 0}
                 >
                     <List>
-                        {searchHistory.map((search) => (
+                        {suggestions.map((search) => (
                             <SuggestionItem key={search}>{search}</SuggestionItem>
                         ))}
                     </List>
                 </SuggestionsDropdown>
-            </SuggestionsContainer>
+            </SuggestionsContainer> */}
         </AutocompleteContainer>
     );
 };
 
+
 export default Autocomplete
 
 
-export const AutocompleteContainer = styled.div`
+const default_fuse_oprions = {
+    // includeScore: true,
+    threshold:.2,
+    minMatchCharLength: 2,
+    includeMatches:true,
+    keys: ['name', 'capital', 'cioc']
+}
+
+
+
+
+const AutocompleteContainer = styled.div`
             width: 450px;
             margin: 0 auto;
             `;
 
-export const SuggestionsContainer = styled.div`
+const SuggestionsContainer = styled.div`
             position: relative;
             `;
 
-export const SuggestionsDropdown = styled.div`
+const SuggestionsDropdown = styled.div`
             position: absolute;
             width: 100%;
             border: 2px solid gainsboro;
@@ -72,7 +85,7 @@ export const SuggestionsDropdown = styled.div`
             display: ${({ show }) => (show ? "block" : "none")};
             `;
 
-export const Input = styled.input`
+const Input = styled.input`
             width: 100%;
             padding: 1.1rem;
             border: 2px solid gainsboro;
@@ -88,7 +101,7 @@ export const Input = styled.input`
   }
             `;
 
-export const List = styled.ol`
+const List = styled.ol`
             list-style: none;
             text-align: start;
             font-size: 1.1rem;
@@ -96,7 +109,7 @@ export const List = styled.ol`
             margin: 0;
             `;
 
-export const SuggestionItem = styled.li`
+const SuggestionItem = styled.li`
             padding: 1.1rem;
             transition: all 250ms ease-in-out;
             &:hover {
@@ -104,7 +117,7 @@ export const SuggestionItem = styled.li`
   }
             `;
 
-export const MatchShadow = styled.div`
+const MatchShadow = styled.div`
             position: absolute;
             border: 2px solid transparent;
             padding: 1.1rem;
