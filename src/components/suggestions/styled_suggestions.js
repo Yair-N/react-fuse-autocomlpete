@@ -27,7 +27,9 @@ export const List = styled.ol`
 export const SuggestionItem = styled.li`
             padding: 1.1rem;
             transition: all 250ms ease-in-out;
+            background:${(props)=>(props.active === props.index?'#cccccc':'inherit')};
             &:hover {
                 background: #cccccc;
   }
+  
             `;

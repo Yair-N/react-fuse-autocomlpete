@@ -1,31 +1,39 @@
-import {React, useRef, useEffect} from 'react'
+import { React, useRef, useEffect } from 'react'
 import { StyledInput } from './styled_input'
+import { ReactComponent as CancelIcon } from "../../assets/svg/cancel-cross-svgrepo-com.svg";
 
-const Input = (props,{onFocus = ()=>{}}) => {
+const Input = (
+    { onKeyDown,onCancel, placeholder, searchTerm, setSearchTerm, onChange },
+) => {
 
-   
-    const input_ref = useRef(null)
+    const handleClear = () => {
 
-    let manualFocus = true
-  
-    const setFocus = () => {
-      manualFocus = false
-      input_ref?.current && input_ref.current.focus()
-      manualFocus = true
+        setSearchTerm('')
     }
-  
-    const handleOnFocus = (event) => {
-      manualFocus && onFocus(event)
-    }
-  
-    
-   
+
     return (
 
-        <StyledInput
-            ref = {input_ref}
-            {...props}
-        />
+        <StyledInput >
+            <input
+                spellCheck={false}
+                placeholder={placeholder}
+                type={'text'}
+                value={searchTerm}
+                onChange={onChange}
+                onKeyDown = {onKeyDown}
+            />
+
+            <CancelIcon
+                style={searchTerm?.length > 0 ? { display: 'block' } : { display: 'none' }}
+                type='button'
+                width={20}
+                height={20}
+                focusable="false"
+                onClick={handleClear}
+            />
+
+
+        </StyledInput>
     )
 }
 

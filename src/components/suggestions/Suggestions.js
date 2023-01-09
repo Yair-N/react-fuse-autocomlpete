@@ -1,34 +1,59 @@
-import {React, useRef} from 'react'
+import { React, useRef, useEffect } from 'react'
 import { SuggestionsContainer, SuggestionsDropdown, List, SuggestionItem } from './styled_suggestions'
-import { useFuse } from '../useFuse';
 
 
 
 
 const Suggestions = (
     {
+
         searchTerm = '',
         onFocus = () => { },
         options,
-        items, 
-        suggestion_format,
+        items,
+        suggestionFormat,
         handle_selection,
+        suggestions,
+        activaItem,
+        setSuggestionString,
+        setSelectedObject,
+
     }
 
 ) => {
 
-      const suggestions = useFuse(searchTerm, items, options);
+    const ref = useRef(null)
+
+    useEffect(() => {
+        const updateSelection = (suggestions) => {
+            if (suggestions?.length > 0 && activaItem > -1) {
+                setSelectedObject(suggestions[activaItem])
+                let element = suggestionFormat(suggestions[activaItem])
+                let string = element['props']['children']['props']['children'].join("").toString()
+                setSuggestionString(string)
+            }
+        }
+
+        return updateSelection(suggestions)
+
+    }, [activaItem])
+
+
+
 
     return (
         <SuggestionsContainer >
             <SuggestionsDropdown
-                // onFocus={(event) => handleOnFocus(event)}
-                show={true} //{searchTerm.length > 0 && items.length > 0}
+                show={searchTerm.length > 0 && suggestions.length > 0}
             >
-                <List>
-                    
-                    {suggestions.map((item) => (
-                        <SuggestionItem key={item.index}>{suggestion_format(item)}</SuggestionItem>
+                <List ref={ref}
+                >
+
+                    {suggestions.map((item, index) => (
+                        <SuggestionItem
+                            index={index}
+                            active={activaItem}
+                            key={index}>{suggestionFormat(item)}</SuggestionItem>
                     ))}
                 </List>
             </SuggestionsDropdown>

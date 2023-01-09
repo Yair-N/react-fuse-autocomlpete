@@ -42,11 +42,11 @@ function App() {
     console.log('Focused')
   }
 
-  const suggestion_format = (item) => {
+  // goes all the way to Suggestions component
+  const suggestionFormat = (item) => {
     return (
       <>
-        <span style={{ display: 'block', textAlign: 'left' }}>{item.cioc} | {item.name} | {item.nativeName}</span>
-        {/* <span style={{ display: 'block', textAlign: 'left' }}>name: {item.name}</span> */}
+        <span style={{ display: 'block', textAlign: 'left', width:'inherit' }}>{item.cioc} | {item.name} | {item.nativeName}</span>
       </>
     )
   }
@@ -54,10 +54,11 @@ function App() {
 
   return (
     <Autocomplete
+      placeholder={"search a country by name, capital or icio"}
       items={country_list}
       keys_to_display={['name', 'cioc', 'nativeName']}
       options={{ keys: ['name', 'cioc', 'capital'] }}
-      suggestion_format = {suggestion_format}
+      suggestionFormat={suggestionFormat}
     />
   );
 }

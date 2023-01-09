@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react'
+import React, { useRef, useState, useEffect } from 'react'
 
 import Suggestions from '../suggestions/Suggestions';
 import Input from '../input/Input';
@@ -10,63 +10,121 @@ import { AutocompleteContainer } from './styled_autocomplete';
 
 const Autocomplete = ({
     items,
-    onFocus = () => { },
-    format_result = () => { },
     options,
-    suggestion_format,
+    suggestionFormat,
+    placeholder,
 }) => {
 
-    const [searchTerm, setText] = useState("");
+    const [searchTerm, setSearchTerm] = useState("");
+    const [prevTerm, setPrevTerm] = useState("")
+    const [activeSuggestion, setActiveSuggestion] = useState(-1);
+    const [suggestionsLength, setSuggestionsLength] = useState(0)
+    const [selectedObject, setSelectedObject] = useState({})
+    const [suggestionString, setSuggestionString] = useState('')
 
-
-
+    const inputRef = useRef(null)
     // fuse and display results
     const fuse_options = { ...default_fuse_options, ...options }
     const suggestions = useFuse(searchTerm, items, options = fuse_options);
 
-
-    // how each suggestion in suggestions will be displayed as sumtimes we cannot odisplay the hole object
-    const format_suggestion = { format_result } ? { format_result } : (suggestion, keys_to_display, seporator) => {
-
-        const keys = keys_to_display ? keys_to_display : [Object.keys(suggestion)[0]];
-        console.log(keys)
-        let suggestion_string
-        if (keys.length > 1) {
-            suggestion_string = keys.map((key, index) => {
-                return suggestion[key] + (index + 1 < keys.length ? (seporator ? seporator : ', ') : '')
-            })
-        } else {
-            suggestion_string = suggestion[keys[0]]
-        }
-        return suggestion_string
+    const handleClear = () => {
+        setActiveSuggestion(-1)
+        setSearchTerm("")
+        setSuggestionsLength(0)
+        setSelectedObject({})
+        setSuggestionString("")
     }
 
-    // focus handleing
+    useEffect(() => {
+        setSuggestionsLength(suggestions.length)
+    }, [suggestions])
 
+
+
+    useEffect(() => {
+        const resetValues = () => {
+            setActiveSuggestion(-1)
+            setSuggestionsLength(0)
+            setSelectedObject({})
+            setSuggestionString("")
+        }
+
+        if (searchTerm === "" && prevTerm !== "") {
+            resetValues()
+        }
+
+    }, [searchTerm])
+
+
+    const handleInputKeyDown = (event) => {
+
+        if (suggestionsLength > 0) {
+
+            switch (event.key) {
+
+                case 'ArrowDown':
+                    event.preventDefault()
+                    if (activeSuggestion === -1) {
+                        setActiveSuggestion(0)
+                    }
+                    else setActiveSuggestion(suggestionsLength - 1 > activeSuggestion ? activeSuggestion + 1 : activeSuggestion)
+                    break
+                case 'ArrowUp':
+                    event.preventDefault()
+                    if (activeSuggestion > 0) {
+                        setActiveSuggestion(activeSuggestion - 1)
+                    }
+
+                    break
+
+                case 'Enter':
+                    event.preventDefault()
+                    if (activeSuggestion > -1) {
+                        setSearchTerm(suggestionString)
+                    }
+
+                    break
+                default:
+                    break
+            }
+        }
+
+    }
+
+    const handleSelected = (selected) => {
+        setSearchTerm(selected)
+    }
 
     const handleOnFocus = (event) => {
 
+
     }
 
+
     const handleSearchTermChange = (event) => {
-        setText(event.target.value)
+        setPrevTerm(searchTerm)
+        setSearchTerm(event.target.value)
     }
     return (
         <AutocompleteContainer>
             <Input
-                spellCheck='false'
-                type="search"
                 value={searchTerm}
                 onChange={(event) => handleSearchTermChange(event)}
-                placeholder="search a country by name, iso code or capital"
-                onFocus={(e) => handleOnFocus(e)}
-            />
+                placeholder={placeholder}
+                onKeyDown={(event) => handleInputKeyDown(event)}
+                searchTerm={searchTerm}
+                setSearchTerm={setSearchTerm} />
 
             <Suggestions
-                items={items}
-                suggestion_format={suggestion_format}
-                options = {options}
-                searchTerm = {searchTerm}
+                suggestions={suggestions}
+                suggestionFormat={suggestionFormat}
+                options={options}
+                searchTerm={searchTerm}
+                setSearchTerm={setSearchTerm}
+                activaItem={activeSuggestion}
+                setSelectedObject={setSelectedObject}
+                setSuggestionString={setSuggestionString}
+
             />
 
         </AutocompleteContainer>

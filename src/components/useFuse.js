@@ -13,7 +13,6 @@ export function useFuse(searchTerm, items, options) {
   useEffect(() => {
     const items = fuse.current.search(searchTerm);
     setSuggestions(items.map(({ item }) => item));
-    console.log('suggestions', suggestions)
   }, [searchTerm]);
 
   return suggestions;
